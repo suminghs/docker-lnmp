@@ -1,0 +1,44 @@
+version: "2"
+services:
+  mysql:
+    build: ./mysql
+    container_name: "mysql"
+    restart: always
+    ports:
+      - "3306:3306"
+    volumes:
+      - /usr/local/docker/server/mysql:/var/lib/mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: 123456
+  redis:
+    build: ./redis
+    container_name: "redis"
+    restart: always
+    ports:
+      - "6379:6379"
+    volumes:
+      - /usr/local/docker/server/redis:/data
+  php72:
+    build: ./php
+    container_name: "php72"
+    restart: always
+    ports:
+      - "9000:9000"
+    volumes:
+      - /usr/local/docker/server/www:/var/www/html
+      - /usr/local/docker/server/php/php.ini:/usr/local/etc/php/php.ini
+    links:
+      - "mysql"
+      - "redis"
+  nginx:
+    build: ./nginx
+    container_name: "nginx"
+    restart: always
+    ports:
+      - "80:80"
+    links:
+      - "php72"
+    volumes:
+      - /usr/local/docker/server/www:/usr/share/nginx/html
+      - /usr/local/docker/server/nginx:/etc/nginx
+      - /usr/local/docker/server/logs/nginx.logs:/var/log/nginx
